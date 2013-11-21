@@ -1,0 +1,68 @@
+<project name="service-utilities" basedir="." default="jar">
+	
+
+	<property name="liferay" value="/opt/liferay" />
+	<property name="liferay-sdk" value="${liferay}/liferay-plugins-sdk-6.1.1" />
+	<property file="${liferay-sdk}/build.${user.name}.properties" />
+	<property name="dependencies" value="${liferay}/projects-dependencies" />
+		
+	<path id="project-classpath">
+		<fileset dir="${dependencies}/${ant.project.name}-dependencies">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+
+	<target name="copyDependenciesToServer">
+		<copy todir="${app.server.lib.global.dir}">
+			<fileset dir="${dependencies}/${ant.project.name}-dependencies">
+				<exclude name="liferay*.jar"/>
+				<exclude name="jsf*.jar"/>
+				<exclude name="primefaces*.jar"/>
+				<exclude name="axi*.jar"/>
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="all">
+		<antcall target="clean" />
+		<antcall target="jar" />
+
+	</target>
+
+    <target name="clean">
+        <delete dir="build"/>
+    </target>
+
+    <target name="compile" depends="clean">
+    	
+    	<mkdir dir="${dependencies}"/>
+        <mkdir dir="${dependencies}/${ant.project.name}-dependencies"/>
+    	<copy todir="${dependencies}/${ant.project.name}-dependencies">
+    		<fileset dir="${dropbox.home}/jars/projects-dependencies/${ant.project.name}-dependencies">
+				<include name="*.jar"/>    		
+    		</fileset>
+    	</copy>
+    	
+    	<mkdir dir="build"/>
+        <mkdir dir="build/classes"/>
+
+        <javac includeantruntime="false" srcdir="src" destdir="build/classes" target="1.5" debug="true">
+        	<classpath refid="project-classpath"/>
+        	<compilerarg value="-Xlint:unchecked"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar destfile="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" basedir="build/classes" />
+    	
+    	<mkdir dir="${dependencies}/cvrg-broker-service-dependencies"/>
+    	<copy todir="${dependencies}/cvrg-broker-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
+    	<mkdir dir="${dependencies}/physionet-analysis-service-dependencies"/>
+    	<copy todir="${dependencies}/physionet-analysis-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
+    	<mkdir dir="${dependencies}/data-transfer-service-dependencies"/>
+    	<copy todir="${dependencies}/data-transfer-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
+    	
+    	<antcall target="clean" />
+    </target>
+
+</project>
