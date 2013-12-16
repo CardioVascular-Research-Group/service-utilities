@@ -8,7 +8,7 @@ import java.util.Properties;
 
 public class ServiceProperties {
 	
-	private static String PROPERTIES_PATH = "/axis2/WEB-INF/conf/service.properties";
+	private static String PROPERTIES_PATH = "/conf/service.properties";
 	private static Properties prop;
 	private static ServiceProperties singleton;
 	private static File propertiesFile = null;
@@ -17,7 +17,7 @@ public class ServiceProperties {
 
 	private ServiceProperties() {
 		prop = new Properties();
-		propertiesFile = new File(System.getProperty("wtp.deploy")+PROPERTIES_PATH);
+		propertiesFile = new File(System.getProperty("catalina.home")+PROPERTIES_PATH);
 		loadProperties();
 	}
 	
@@ -46,7 +46,21 @@ public class ServiceProperties {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
 	
+	public static final String WINE_COMMAND = "wine.command";
+	public static final String CHESNOKOV_HOME = "chesnokov.home";
+	public static final String CHESNOKOV_COMMAND = "chesnokov.command";
+	public static final String CHESNOKOV_FILTERS = "chesnokov.filters";
+	
+	public static final String DATATRANSFER_SERVICE_URL = "dataTransferServiceURL";
+	public static final String DATATRANSFER_SERVICE_NAME = "dataTransferServiceName";
+	public static final String DATATRANSFER_SERVICE_METHOD = "dataTransferServiceMethod";
+	
+	public static final String TEMP_FOLDER = "temp.folder";
+	public static final String LIFERAY_DB_ENDPOINT_URL = "liferay.endpoint.url.db";
+	public static final String LIFERAY_FILES_ENDPOINT_URL = "liferay.endpoint.url.files";
+	public static final String LIFERAY_WS_USER = "liferay.ws.user";
+	public static final String LIFERAY_WS_PASSWORD = "liferay.ws.password";
+		
 }
