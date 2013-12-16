@@ -9,10 +9,13 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.activation.DataHandler;
 
 import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMText;
 import org.apache.log4j.Logger;
 
@@ -24,18 +27,20 @@ import edu.jhu.cvrg.liferay.portlet.documentlibrary.service.http.Portlet_DL_DLAp
 
 public class ServiceUtils {
 
-	public static final String SERVER_TEMP_ANALYSIS_FOLDER = ServiceProperties.getInstance().getProperty("temp.folder")+"/a";
-	public static final String SERVER_TEMP_CONVERSION_FOLDER = ServiceProperties.getInstance().getProperty("temp.folder")+"/c";
+	public static final String SERVER_TEMP_ANALYSIS_FOLDER = ServiceProperties.getInstance().getProperty(ServiceProperties.TEMP_FOLDER)+"/a";
+	public static final String SERVER_TEMP_CONVERSION_FOLDER = ServiceProperties.getInstance().getProperty(ServiceProperties.TEMP_FOLDER)+"/c";
 	
 	private static String sep = File.separator;
 	
+	private static final int LIFERAY_WORKFLOW_STATUS_APPROVED = 1;
+	
 	private static final Logger log = Logger.getLogger(ServiceUtils.class);
 	
-	public static boolean sendToLiferay(long groupId, long folderId, String outputPath, String fileName, long fileSize, InputStream fis){
+	public static Long sendToLiferay(long groupId, long folderId, long userId, String outputPath, String fileName, long fileSize, InputStream fis){
 		
 		log.debug(" +++++ tranferring " + fileName + " to Liferay");
 		
-		boolean ret = false;
+		Long ret = null;
 		
 		DLAppServiceSoapServiceLocator locator = new DLAppServiceSoapServiceLocator();
 		
@@ -43,18 +48,28 @@ public class ServiceUtils {
 			
 			ServiceProperties props = ServiceProperties.getInstance();
 			
-			DLAppServiceSoap service = locator.getPortlet_DL_DLAppService(new URL(props.getProperty("liferay.endpoint.url")));
+			DLAppServiceSoap service = locator.getPortlet_DL_DLAppService(new URL(props.getProperty(ServiceProperties.LIFERAY_FILES_ENDPOINT_URL)));
 			
-			((Portlet_DL_DLAppServiceSoapBindingStub)service).setUsername(props.getProperty("liferay.ws.user"));
-			((Portlet_DL_DLAppServiceSoapBindingStub)service).setPassword(props.getProperty("liferay.ws.password"));
+			((Portlet_DL_DLAppServiceSoapBindingStub)service).setUsername(props.getProperty(ServiceProperties.LIFERAY_WS_USER));
+			((Portlet_DL_DLAppServiceSoapBindingStub)service).setPassword(props.getProperty(ServiceProperties.LIFERAY_WS_PASSWORD));
 			
 			byte[] bytes = new byte[Long.valueOf(fileSize).intValue()];
 			fis.read(bytes);
 			fis.close();
 			
-			FileEntrySoap file = service.addFileEntry(groupId, folderId, fileName, "", fileName, "", "1.0", bytes, new ServiceContext());
+			ServiceContext svc = new ServiceContext();
+			svc.setScopeGroupId(groupId);
+			svc.setAddGroupPermissions(true);
 			
-			ret = (file != null);
+			svc.setUserId(userId);
+			svc.setGuestOrUserId(userId);
+			svc.setWorkflowAction(LIFERAY_WORKFLOW_STATUS_APPROVED);
+			
+			
+			FileEntrySoap file = service.addFileEntry(groupId, folderId, fileName, "", fileName, "", "1.0", bytes, svc);
+			
+			
+			ret = file.getFileEntryId();
 			
 			deleteFile(outputPath, fileName);
 			
@@ -147,5 +162,75 @@ public class ServiceUtils {
 		sFileName = sFilePathName.substring(iIndexLastSlash+1);
 
 		return sFileName;
+	}
+	
+	/** Converts the array of output (relative) filenames to a single OMElement whose sub-elements are the filenames.
+	 * 
+	 * @param asFileNames - array of (relative) file path/name strings.
+	 * @return - a single OMElement containing the path/names.
+	 */
+	public static OMElement makeOutputOMElement(String[] asFileNames, String sParentOMEName, String sChildOMEName, OMFactory omFactory, OMNamespace omNs){
+		log.info("makeOutputOMElement()" + asFileNames.length + " file names");
+		OMElement omeArray = null;
+		if (asFileNames != null) {
+			try {
+				omeArray = omFactory.createOMElement(sParentOMEName, omNs); 
+				
+				for(int i=0; i<asFileNames.length;i++){
+					addOMEChild(sChildOMEName, asFileNames[i], omeArray,omFactory,omNs);					
+				}
+			}catch(Exception e){
+				log.error(e.getMessage());
+			}
+		}
+		return omeArray;
+	}
+	
+	public static OMElement makeOutputOMElement(Set<?> asFileNames, String sParentOMEName, String sChildOMEName, OMFactory omFactory, OMNamespace omNs){
+		
+		OMElement omeArray = null;
+		if (asFileNames != null) {
+			try {
+				omeArray = omFactory.createOMElement(sParentOMEName, omNs); 
+				
+				for (Object o : asFileNames) {
+					
+					OMElement omeItem = omFactory.createOMElement(sChildOMEName, omNs);
+					
+					
+					java.lang.reflect.Method[] methods = o.getClass().getMethods();
+					
+					for (java.lang.reflect.Method method : methods) {
+						if(method.getName().startsWith("get") && method.getParameterTypes().length == 0 && !method.getName().equals("getClass")){
+							
+							String name = method.getName().substring(3);
+							Object value = method.invoke(o, null);
+							
+							addOMEChild(name, value.toString(), omeItem,omFactory,omNs);		
+						}
+					}
+					
+					omeArray.addChild(omeItem);
+				}
+				
+			}catch(Exception e){
+				log.error(e.getMessage());
+			}
+		}
+		return omeArray;
+	}
+	
+	/** Wrapper around the 3 common functions for adding a child element to a parent OMElement.
+	 * 
+	 * @param name - name/key of the child element
+	 * @param value - value of the new element
+	 * @param parent - OMElement to add the child to.
+	 * @param factory - OMFactory
+	 * @param dsNs - OMNamespace
+	 */
+	public static void addOMEChild(String name, String value, OMElement parent, OMFactory factory, OMNamespace dsNs){
+		OMElement child = factory.createOMElement(name, dsNs);
+		child.addChild(factory.createOMText(value));
+		parent.addChild(child);
 	}
 }
