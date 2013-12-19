@@ -29,6 +29,7 @@ public class ServiceUtils {
 
 	public static final String SERVER_TEMP_ANALYSIS_FOLDER = ServiceProperties.getInstance().getProperty(ServiceProperties.TEMP_FOLDER)+"/a";
 	public static final String SERVER_TEMP_CONVERSION_FOLDER = ServiceProperties.getInstance().getProperty(ServiceProperties.TEMP_FOLDER)+"/c";
+	public static final String SERVER_TEMP_VISUALIZE_FOLDER = ServiceProperties.getInstance().getProperty(ServiceProperties.TEMP_FOLDER)+"/v";
 	
 	private static String sep = File.separator;
 	

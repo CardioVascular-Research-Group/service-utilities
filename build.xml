@@ -61,6 +61,8 @@
     	<copy todir="${dependencies}/physionet-analysis-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
     	<mkdir dir="${dependencies}/data-transfer-service-dependencies"/>
     	<copy todir="${dependencies}/data-transfer-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
+    	<mkdir dir="${dependencies}/waveform-support-service-dependencies"/>
+    	<copy todir="${dependencies}/waveform-support-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
     	
     	<antcall target="clean" />
     </target>
