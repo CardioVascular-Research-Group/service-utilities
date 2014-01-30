@@ -108,7 +108,7 @@ public class ServiceUtils {
 	}
 	
 	public static void createTempLocalFile(Map<String, OMElement> mapWServiceParam, String tagName, String inputPath, String inputFilename) {
-		OMElement fileNode = mapWServiceParam.get(tagName);
+		OMElement fileNode = mapWServiceParam.get("file_"+tagName);
 		if(fileNode != null){
 			OMText binaryNode = (OMText) fileNode.getFirstOMChild();
 			DataHandler contentDH = (DataHandler) binaryNode.getDataHandler();
