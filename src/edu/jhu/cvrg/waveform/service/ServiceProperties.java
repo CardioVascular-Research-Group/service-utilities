@@ -49,7 +49,6 @@ public class ServiceProperties {
 	}
 	
 	public static final String WINE_COMMAND = "wine.command";
-	public static final String CHESNOKOV_HOME = "chesnokov.home";
 	public static final String CHESNOKOV_COMMAND = "chesnokov.command";
 	public static final String CHESNOKOV_FILTERS = "chesnokov.filters";
 	
