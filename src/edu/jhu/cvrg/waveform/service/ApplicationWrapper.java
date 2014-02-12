@@ -40,14 +40,33 @@ public abstract class ApplicationWrapper {
 		try {
 			File fWorkingDir = new File(sWorkingDir); //converts the dir name to File for exec command.
 			Runtime rt = Runtime.getRuntime();
-			Process process = rt.exec(sCommand, asEnvVar, fWorkingDir);
-			InputStream is = process.getInputStream();  // The input stream for this method comes from the output from rt.exec()
-			InputStreamReader isr = new InputStreamReader(is);
-			stdInputBuffer = new BufferedReader(isr);
+			String[] commandArray = sCommand.split("\\|");
+			if(commandArray.length == 1 ){
+				Process process = rt.exec(sCommand, asEnvVar, fWorkingDir);
+				InputStream is = process.getInputStream();  // The input stream for this method comes from the output from rt.exec()
+				InputStreamReader isr = new InputStreamReader(is);
+				stdInputBuffer = new BufferedReader(isr);
+				InputStream errs = process.getErrorStream();
+				InputStreamReader esr = new InputStreamReader(errs);
+				stdError = new BufferedReader(esr);	
+			}else{
+				
+				Process[] processArray = new Process[commandArray.length];
+				// Start processes: ps ax | grep rbe | grep JavaVM
+				for (int i = 0; i < commandArray.length; i++) {
+					processArray[i] =  rt.exec(commandArray[i].trim(), asEnvVar, fWorkingDir);
+				}
+		        // Start piping
+		        java.io.InputStream in = Piper.pipe(processArray);
+		        
+		        // Show output of last process
+		        InputStreamReader isr = new InputStreamReader(in);
+				stdInputBuffer = new BufferedReader(isr);
+				InputStream errs = processArray[processArray.length-1].getErrorStream();
+				InputStreamReader esr = new InputStreamReader(errs);
+				stdError = new BufferedReader(esr);	
+			}
 			
-			InputStream errs = process.getErrorStream();
-			InputStreamReader esr = new InputStreamReader(errs);
-			stdError = new BufferedReader(esr);
 		} catch (IOException ioe) {
 			log.error("IOException Message: executeCommand(" + sCommand + ")" + ioe.getMessage());
 			bRet = false;
