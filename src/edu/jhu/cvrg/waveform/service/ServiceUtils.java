@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.activation.DataHandler;
+import javax.xml.rpc.ServiceException;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
@@ -37,7 +38,7 @@ public class ServiceUtils {
 	
 	private static final Logger log = Logger.getLogger(ServiceUtils.class);
 	
-	public static Long sendToLiferay(long groupId, long folderId, long userId, String outputPath, String fileName, long fileSize, InputStream fis){
+	public static Long sendToLiferay(long groupId, long folderId, long userId, String outputPath, String fileName, long fileSize, InputStream fis) throws IOException, ServiceException{
 		
 		log.debug(" +++++ tranferring " + fileName + " to Liferay");
 		
@@ -45,41 +46,35 @@ public class ServiceUtils {
 		
 		DLAppServiceSoapServiceLocator locator = new DLAppServiceSoapServiceLocator();
 		
-		try {
+		ServiceProperties props = ServiceProperties.getInstance();
+		
+		DLAppServiceSoap service = locator.getPortlet_DL_DLAppService(new URL(props.getProperty(ServiceProperties.LIFERAY_FILES_ENDPOINT_URL)));
+		
+		((Portlet_DL_DLAppServiceSoapBindingStub)service).setUsername(props.getProperty(ServiceProperties.LIFERAY_WS_USER));
+		((Portlet_DL_DLAppServiceSoapBindingStub)service).setPassword(props.getProperty(ServiceProperties.LIFERAY_WS_PASSWORD));
+		
+		byte[] bytes = new byte[Long.valueOf(fileSize).intValue()];
+		fis.read(bytes);
+		fis.close();
+		
+		ServiceContext svc = new ServiceContext();
+		svc.setScopeGroupId(groupId);
+		svc.setAddGroupPermissions(true);
+		
+		svc.setUserId(userId);
+		svc.setGuestOrUserId(userId);
+		svc.setWorkflowAction(LIFERAY_WORKFLOW_STATUS_APPROVED);
+		
+		
+		FileEntrySoap file = service.addFileEntry(groupId, folderId, fileName, "", fileName, "", "1.0", bytes, svc);
+		
+		
+		ret = file.getFileEntryId();
+		
+		deleteFile(outputPath, fileName);
+		
+		log.debug(" +++++ Done tranferring ");
 			
-			ServiceProperties props = ServiceProperties.getInstance();
-			
-			DLAppServiceSoap service = locator.getPortlet_DL_DLAppService(new URL(props.getProperty(ServiceProperties.LIFERAY_FILES_ENDPOINT_URL)));
-			
-			((Portlet_DL_DLAppServiceSoapBindingStub)service).setUsername(props.getProperty(ServiceProperties.LIFERAY_WS_USER));
-			((Portlet_DL_DLAppServiceSoapBindingStub)service).setPassword(props.getProperty(ServiceProperties.LIFERAY_WS_PASSWORD));
-			
-			byte[] bytes = new byte[Long.valueOf(fileSize).intValue()];
-			fis.read(bytes);
-			fis.close();
-			
-			ServiceContext svc = new ServiceContext();
-			svc.setScopeGroupId(groupId);
-			svc.setAddGroupPermissions(true);
-			
-			svc.setUserId(userId);
-			svc.setGuestOrUserId(userId);
-			svc.setWorkflowAction(LIFERAY_WORKFLOW_STATUS_APPROVED);
-			
-			
-			FileEntrySoap file = service.addFileEntry(groupId, folderId, fileName, "", fileName, "", "1.0", bytes, svc);
-			
-			
-			ret = file.getFileEntryId();
-			
-			deleteFile(outputPath, fileName);
-			
-			log.debug(" +++++ Done tranferring ");
-			
-		} catch (Exception e) {
-			log.error("Error on sendToLiferay: "+e.getMessage());
-		}
-
 		return ret;
 	}
 	
