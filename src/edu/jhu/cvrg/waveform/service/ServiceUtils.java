@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.activation.DataHandler;
-import javax.xml.rpc.ServiceException;
 
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
@@ -38,7 +37,7 @@ public class ServiceUtils {
 	
 	private static final Logger log = Logger.getLogger(ServiceUtils.class);
 	
-	public static Long sendToLiferay(long groupId, long folderId, long userId, String outputPath, String fileName, long fileSize, InputStream fis) throws IOException, ServiceException{
+	public static Long sendToLiferay(long groupId, long folderId, long userId, String outputPath, String fileName, long fileSize, InputStream fis){
 		
 		log.debug(" +++++ tranferring " + fileName + " to Liferay");
 		
@@ -46,7 +45,7 @@ public class ServiceUtils {
 		
 		DLAppServiceSoapServiceLocator locator = new DLAppServiceSoapServiceLocator();
 		
-		try{
+		try {
 			
 			ServiceProperties props = ServiceProperties.getInstance();
 			
@@ -76,11 +75,11 @@ public class ServiceUtils {
 			deleteFile(outputPath, fileName);
 			
 			log.debug(" +++++ Done tranferring ");
-		
+			
 		} catch (Exception e) {
 			log.error("Error on sendToLiferay: "+e.getMessage());
 		}
-		
+
 		return ret;
 	}
 	
