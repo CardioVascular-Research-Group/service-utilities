@@ -46,7 +46,7 @@ public class ServiceUtils {
 		
 		DLAppServiceSoapServiceLocator locator = new DLAppServiceSoapServiceLocator();
 		
-		try {
+		try{
 			
 			ServiceProperties props = ServiceProperties.getInstance();
 			
@@ -80,6 +80,7 @@ public class ServiceUtils {
 		} catch (Exception e) {
 			log.error("Error on sendToLiferay: "+e.getMessage());
 		}
+		
 		return ret;
 	}
 	
