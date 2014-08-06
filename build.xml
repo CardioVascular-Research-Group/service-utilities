@@ -56,12 +56,13 @@
         <jar destfile="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" basedir="build/classes" />
     	
     	<mkdir dir="${dependencies}/cvrg-broker-service-dependencies"/>
-    	<copy todir="${dependencies}/cvrg-broker-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
     	<mkdir dir="${dependencies}/physionet-analysis-service-dependencies"/>
-    	<copy todir="${dependencies}/physionet-analysis-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
     	<mkdir dir="${dependencies}/data-transfer-service-dependencies"/>
-    	<copy todir="${dependencies}/data-transfer-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
     	<mkdir dir="${dependencies}/waveform-support-service-dependencies"/>
+    		
+    	<copy todir="${dependencies}/cvrg-broker-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
+    	<copy todir="${dependencies}/physionet-analysis-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
+    	<copy todir="${dependencies}/data-transfer-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
     	<copy todir="${dependencies}/waveform-support-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
     	
     	<antcall target="clean" />
