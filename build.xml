@@ -59,11 +59,13 @@
     	<mkdir dir="${dependencies}/physionet-analysis-service-dependencies"/>
     	<mkdir dir="${dependencies}/data-transfer-service-dependencies"/>
     	<mkdir dir="${dependencies}/waveform-support-service-dependencies"/>
-    		
+    	<mkdir dir="${dependencies}/qrs_score-analysis-service-dependencies"/>
+    	
     	<copy todir="${dependencies}/cvrg-broker-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
     	<copy todir="${dependencies}/physionet-analysis-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
     	<copy todir="${dependencies}/data-transfer-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
     	<copy todir="${dependencies}/waveform-support-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
+    	<copy todir="${dependencies}/qrs_score-analysis-service-dependencies" file="${app.server.deploy.dir}/axis2/WEB-INF/lib/${ant.project.name}.jar" />
     	
     	<antcall target="clean" />
     </target>

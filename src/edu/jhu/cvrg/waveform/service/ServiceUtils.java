@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -170,15 +171,15 @@ public class ServiceUtils {
 	 * @param asFileNames - array of (relative) file path/name strings.
 	 * @return - a single OMElement containing the path/names.
 	 */
-	public static OMElement makeOutputOMElement(String[] asFileNames, String sParentOMEName, String sChildOMEName, OMFactory omFactory, OMNamespace omNs){
-		log.info("makeOutputOMElement()" + asFileNames.length + " file names");
+	public static OMElement makeOutputOMElement(List<String> asFileNames, String sParentOMEName, String sChildOMEName, OMFactory omFactory, OMNamespace omNs){
+		log.info("makeOutputOMElement()" + asFileNames.size() + " file names");
 		OMElement omeArray = null;
 		if (asFileNames != null) {
 			try {
 				omeArray = omFactory.createOMElement(sParentOMEName, omNs); 
 				
-				for(int i=0; i<asFileNames.length;i++){
-					addOMEChild(sChildOMEName, asFileNames[i], omeArray,omFactory,omNs);					
+				for(int i=0; i<asFileNames.size();i++){
+					addOMEChild(sChildOMEName, asFileNames.get(i), omeArray,omFactory,omNs);					
 				}
 			}catch(Exception e){
 				log.error(e.getMessage());
@@ -186,6 +187,7 @@ public class ServiceUtils {
 		}
 		return omeArray;
 	}
+
 	
 	public static OMElement makeOutputOMElement(Set<?> asFileNames, String sParentOMEName, String sChildOMEName, OMFactory omFactory, OMNamespace omNs){
 		
