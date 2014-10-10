@@ -200,7 +200,6 @@ public class ServiceUtils {
 					
 					OMElement omeItem = omFactory.createOMElement(sChildOMEName, omNs);
 					
-					
 					java.lang.reflect.Method[] methods = o.getClass().getMethods();
 					
 					for (java.lang.reflect.Method method : methods) {
