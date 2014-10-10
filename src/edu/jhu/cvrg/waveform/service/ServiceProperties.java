@@ -52,7 +52,7 @@ public class ServiceProperties {
 	public static final String CHESNOKOV_COMMAND = "chesnokov.command";
 	public static final String CHESNOKOV_FILTERS = "chesnokov.filters";
 	
-	public static final String DATATRANSFER_SERVICE_URL = "dataTransferServiceURL";
+	public static final String MAIN_SERVICE_URL = "main.service.URL";
 	public static final String DATATRANSFER_SERVICE_NAME = "dataTransferServiceName";
 	public static final String DATATRANSFER_SERVICE_METHOD = "dataTransferServiceMethod";
 	
